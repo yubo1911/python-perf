@@ -1,25 +1,40 @@
-__author__ = 'gzguoyubo'
+__author__ = 'yubo'
 
 import csv
+import time
 
-reader = csv.reader(file('raitem.csv', 'rb'))
+class Timer(object):
+	def __init__(self, verbose=False):
+		self.verbose = verbose
 
-cnt = 0
-res = {}
-for line in reader:
-	cnt += 1
-	if cnt == 1:
-		continue
+	def __enter__(self):
+		self.start = time.time()
+		return self
 
-	date = line[1].split(' ')[0]
-	res[date] = res.get(date, 0) + 1
+	def __exit__(self, *args):
+		self.end = time.time()
+		self.secs = self.end - self.start
+		self.msecs = self.secs * 1000
+		if self.verbose:
+			print 'elapased time: %f ms' % self.msecs
 
-keys = res.keys()
-keys.sort()
-for k in keys:
-	print k
+def stat(file_name):
+	reader = csv.reader(file(file_name, 'rb'))
+	
+	cnt = 0
+	res = {}
+	for line in reader:
+		cnt += 1
+		if cnt == 1:
+			continue
+	
+		date = line[1].split(' ')[0]
+		res[date] = res.get(date, 0) + 1
 
-print '='*16
-for k in keys:
-	print res[k]
+	return res
+
+if __name__ == "__main__":
+	with Timer(verbose=True) as t:
+		res = stat('raitem.csv')
+
 
